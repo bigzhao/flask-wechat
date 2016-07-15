@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+<meta charset="UTF-8">
+<title>网页版微信-bigzhao</title>
+<link href="{{bootstrap_find_resource('css/bootstrap.css', cdn='bootstrap')}}" rel="stylesheet" media="screen">
+<script src="{{bootstrap_find_resource('jquery.js', cdn='jquery')}}"></script>
+<script src="{{bootstrap_find_resource('js/bootstrap.js', cdn='bootstrap')}}"></script>
+<script src="http://libs.baidu.com/jquery/1.8.2/jquery.min.js"></script>
+<script type="text/javascript">
+      var myUserName = '{{ user_message["UserName"] }}';
+      var times = 0;
+      var xmlhttp;
+      if (window.XMLHttpRequest) { // code for IE7+, Firefox, Chrome, Opera, Safari
+        xmlhttp = new XMLHttpRequest();
+      } else { // code for IE6, IE5
+        xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
+      }
+      function sendFun()
+      {
+         xmlhttp.open("GET", "/wechat/checkNews", true);
+         xmlhttp.send();
+      }
+      xmlhttp.onreadystatechange = function() {
+        if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+            if(xmlhttp.responseText != '')
+                {
+
+                    var newMessage = eval("("+ xmlhttp.responseText+")");
+ 
+            
+                       if(newMessage.from === myUserName){
+
+                               if(document.getElementById(newMessage.to)){
+                                if(!(document.getElementById(newMessage.to).getElementsByTagName('span').length>0))
+                                {
+                                    document.getElementById(newMessage.to).innerHTML += "<span class='badge' style='background-color:red'>新</span>";
+                                 }
+                                    document.getElementById("newMessages").innerHTML += "<p> 您有一条新消息，请注意查收！</p>"; 
+                                    var first=$("#user-list").find("a").first();
+                                    var contant = document.getElementById(newMessage.to);
+                                    first.before(contant);
+                               }
+                               else{           
+                                var show = "<p> 您有一条新消息,内容大致是：  " + newMessage.content+"   。</p>"
+                                document.getElementById("newMessages").innerHTML += show;
+                               } 
+                      }							   
+                      else{
+                               if(document.getElementById(newMessage.from)){
+                                if(!(document.getElementById(newMessage.from).getElementsByTagName('span').length>0))
+                                {
+                document.getElementById(newMessage.from).innerHTML += '<span class="badge" style="background-color:red">新</span>';
+                                 }
+                                    document.getElementById("newMessages").innerHTML += "<p>  您有一条新消息，请注意查收！</p>"; 
+                                    var first=$("#user-list").find("a").first();
+                                    var contant = document.getElementById(newMessage.from);
+                                    first.before(contant);
+                               }
+                               else{           
+                                var show = "<p>  您有一条新消息,内容大致是：  " + newMessage.content+"  。</p>"
+                                document.getElementById("newMessages").innerHTML += show;
+                               }     
+
+                        }
+                    sendFun();
+                }
+            else{
+                    setTimeout('sendFun()',7000);
+                } 
+          
+        }}
+      sendFun();
+</script></head>
+<body background="http://o6gcipdzi.bkt.clouddn.com/bg.jpg" style="background-position: center;background-repeat: no-repeat;background-attachment: fixed;">
+<p>  </p>
+<div class="container">
+	<div class="row" style="margin-top:40px;">
+		<div class="col-md-3 col-md-offset-1" style="background-color: #2E3138; height:660px;overflow:auto;box-shadow: inset 1px -1px 1px #444, inset -1px 1px 1px #444;">
+			     <div class="list-group" id="user-list">
+<p>  - </p>
+                          <p>     
+				
+                               <div style="margin-top:20px;margin-bottom:20px;">
+				<h3><img src="{{ url_for('static',filename=user_message['filename']) }}" width="64" height="64"/><font color="white">{{ user_message['NickName']| remove_span }}</font></h3></p>
+				<h5 ><font color="white">个性签名： {{ user_message['Signature'] }}</font></h5></div>
+				<h4 ><font color="white"><span class="glyphicon glyphicon-user">好友列表</span></font></h4>
+				{% for d in data%} 
+				<a id="{{ d['UserName'] }}" style="background-color:#2E3138;" class="list-group-item " href="{{ url_for('wechat_friend', username=user_message['UserName'], friendname=d['UserName'])}}"> 
+				<img src="{{ url_for('static',filename=d['filename']) }}" width="32" height="32"/>
+                               <font color="white">{%if d['RemarkName'] %}{{ d['RemarkName']| remove_span }}
+                                {% else %}{{ d['NickName']| remove_span }}{% endif %}</font></a>
+			 {% endfor %}
+			</ul>
+		</div></div>
+		<div class="col-md-7" style="background-color: white;box-shadow: inset 1px -1px 1px #444, inset -1px 1px 1px #444;">
+			<h4 class="text-center">聊天框</h4>
+			<div class="row" style="background-color: #eeeeee; height:490px;overflow:auto; box-shadow: inset 1px -1px 1px #444, inset -1px 1px 1px #444;">
+	              <div id="newMessages">
+			
+
+			</div>
+			</div>
+			<div class="row" style="background-color: white; box-shadow: inset 1px -1px 1px #444, inset -1px 1px 1px #444;">
+				<form>
+					<fieldset>
+						<p>
+							<textarea class="form-control" rows="3" placeholder="请输入..."></textarea>
+						</p>
+						<p>
+							<button class="btn btn-info pull-right disabled" type="submit">发送 Send </button >
+						</p>
+					</fieldset>
+				</form>
+			</div>
+		</div>
+	</div>
+</div>
+</div>
+<footer class="footer">
+<div class="container">
+	<p class="text-center">
+		Copyright © bigzhao 2016
+	</p>
+</div>
+</footer>
+</body>
+</html>

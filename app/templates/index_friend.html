@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+{% import "bootstrap/wtf.html" as wtf %}
+<head lang="en">
+<meta charset="UTF-8">
+<title>网页版微信-bigzhao</title>
+<link href="{{bootstrap_find_resource('css/bootstrap.css', cdn='bootstrap')}}" rel="stylesheet" media="screen">
+<script src="{{bootstrap_find_resource('jquery.js', cdn='jquery')}}"></script>
+<script src="{{bootstrap_find_resource('js/bootstrap.js', cdn='bootstrap')}}"></script>
+<script src="http://libs.baidu.com/jquery/1.8.2/jquery.min.js"></script>
+<script type="text/javascript">
+      var myUserName = '{{ user_message["UserName"] }}';
+      var thisFriendName = '{{ friendInfo["UserName"] }}';
+      var times = 0;
+      var xmlhttp;
+      if (window.XMLHttpRequest) { // code for IE7+, Firefox, Chrome, Opera, Safari
+        xmlhttp = new XMLHttpRequest();
+      } else { // code for IE6, IE5
+        xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
+      }
+      function sendFun()
+      {
+         xmlhttp.open("GET", "/wechat/checkNews", true);
+         xmlhttp.send();
+      }
+      xmlhttp.onreadystatechange = function() {
+        if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+            if(xmlhttp.responseText != '')
+                {
+ var newMessage = eval("("+ xmlhttp.responseText+")");
+                    
+                    if (newMessage.from === thisFriendName){
+                       document.getElementById("newMessages").innerHTML += "<em> <h4>"+newMessage.content+"</em></h4>";
+                    }
+                    else if(newMessage.to === thisFriendName)
+                    {  
+                       document.getElementById("newMessages").innerHTML += "<em> <h4>"+newMessage.content+"</em></h4>";
+                    }
+                    else{
+                       if(newMessage.from === myUserName){
+
+                               if(document.getElementById(newMessage.to)){
+                                if(!(document.getElementById(newMessage.to).getElementsByTagName('span').length>0))
+                                {
+                                    document.getElementById(newMessage.to).innerHTML += "<span class='badge' style='background-color:red'>新</span>";
+                                 }
+                                    document.getElementById("newMessages").innerHTML += "<em> <h4>[*]您有新消息，请注意查收！</em></h4>"; 
+                                    var first=$("#user-list").find("a").first();
+                                    var contant = document.getElementById(newMessage.to);
+                                    first.after(contant);
+                               }
+                               else{           
+                                var show = "<em> <h4> [*]您有新消息,内容大致是：  " + newMessage.content+" </em></h4>"
+                                document.getElementById("newMessages").innerHTML += show;
+                               } 
+                      }							   
+                      else{
+                               if(document.getElementById(newMessage.from)){
+                                if(!(document.getElementById(newMessage.from).getElementsByTagName('span').length>0))
+                                {
+                document.getElementById(newMessage.from).innerHTML += '<span class="badge" style="background-color:red">新</span>';
+                                 }
+                                    document.getElementById("newMessages").innerHTML += "<em> <h4> [*]您有新消息，请注意查收！</p>"; 
+                                    var first=$("#user-list").find("a").first();
+                                    var contant = document.getElementById(newMessage.to);
+                                    first.after(contant);
+                               }
+                               else{           
+                                var show = "<em> <h4>[*]您有新消息,内容大致是：  " + newMessage.content+" </em></h4>"
+                                document.getElementById("newMessages").innerHTML += show;
+                               }     
+
+                        }}
+                   
+                    sendFun();
+                }
+            else{
+                    setTimeout('sendFun()',7000);
+                } 
+          
+        }}
+      sendFun();</script>
+</head>
+<body  background="http://o6gcipdzi.bkt.clouddn.com/bg.jpg" style="background-position: center;background-repeat: no-repeat;background-attachment: fixed;">
+<p>  </p>
+<div class="container">
+	<div class="row" style="margin-top:40px;">
+		<div class="col-md-3 col-md-offset-1" style="background-color:#2E3138;height:660px;overflow:auto;box-shadow: inset 1px -1px 1px #444, inset -1px 1px 1px #444;">
+                           <div class="list-group" id="user-list">
+<p> - </p>
+                                   <div style="margin-top:20px;margin-bottom:20px;">
+				<h3><img src="{{ url_for('static',filename=user_message['filename']) }}" width="64" height="64"/><font color="white">{{ user_message['NickName']| remove_span }}</font></h3></p>
+				<h5 ><font color="white">个性签名： {{ user_message['Signature'] }}</font></h5></div>
+				<h4><font color="white">----好友列表----</font></h4>
+
+				<a id="{{ friendInfo['UserName'] }}" style="background-color:#43464d;" class="list-group-item " href="{{ url_for('wechat_friend', username=user_message['UserName'], friendname=friendInfo['UserName'])}}"> 				<img src="{{ url_for('static',filename=friendInfo['filename']) }}" width="32" height="32"/>
+                                <font color="white">
+                                {%if friendInfo['RemarkName'] %}{{ friendInfo['RemarkName']| remove_span }}
+                                {% else %}{{ friendInfo['NickName']| remove_span }}{% endif %}</font></a>
+
+				{% for new in new_message_members%} 
+				<a id="{{ new['UserName'] }}" style="background-color:#2E3138;" class="list-group-item " href="{{ url_for('wechat_friend', username=user_message['UserName'], friendname=new['UserName'])}}"> 
+                                <span class="badge" style="background-color:red">新</span>
+                                <img src="{{ url_for('static',filename=new['filename']) }}" width="32" height="32"/><font color="white">    
+                                {%if new['RemarkName'] %}{{ new['RemarkName']| remove_span }}
+                                {% else %}{{ new['NickName']| remove_span }}{% endif %}</font></a>
+                       {% endfor %}
+				{% for d in data%}{% if d not in new_message_members%} 
+				<a id="{{ d['UserName'] }}" style="background-color:#2E3138;" class="list-group-item " href="{{ url_for('wechat_friend', username=user_message['UserName'], friendname=d['UserName'])}}"> 				
+                                 <img src="{{ url_for('static',filename=d['filename']) }}" width="32" height="32"/><font color="white">{%if d['RemarkName'] %}{{ d['RemarkName']| remove_span }}
+                                {% else %}{{ d['NickName']| remove_span }}{% endif %}</font></a>{% endif %}
+                       {% endfor %}
+			</ul>
+		</div></div>
+		<div class="col-md-7" style="background-color: white;box-shadow: inset 1px -1px 1px #444, inset -1px 1px 1px #444;">
+			<h4 class="text-center">
+			<em class="text-center">{%if friendInfo['RemarkName'] %}{{ friendInfo['RemarkName']| remove_span }}
+                                {% else %}{{ friendInfo['NickName']| remove_span }}{% endif %}</em></h4>
+                        
+			<div class="row" style="background-color: #eeeeee; height:500px;overflow:auto; box-shadow: inset 1px -1px 1px #444, inset -1px 1px 1px #444;">
+			<div id="newMessages">
+				{% for m in messages %}
+				<p>
+					 <em> <h4>{{ m }} </em></h4>
+				</p>
+			</p>
+			{% endfor %}
+
+			</div>
+		</div>
+		<div class="row" style="background-color: white; box-shadow: inset 1px -1px 1px #444, inset -1px 1px 1px #444;">
+                     <form method="POST">
+				{{ form.message(class="form-control",rows='3')}}
+                                {{ form.submit(class="btn btn-info submit pull-right") }}
+
+			</form>
+		</div>
+	</div>
+</div>
+</div>
+<footer class="footer">
+
+	<p class="text-center">
+		Copyright © bigzhao 2016
+	</p>
+
+</footer>
+</body>
+</html>

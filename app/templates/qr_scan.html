@@ -1,0 +1,59 @@
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>网页版微信-bigzhao</title>
+    <link href="{{bootstrap_find_resource('css/bootstrap.css', cdn='bootstrap')}}" rel="stylesheet" media="screen">
+    <script src="{{bootstrap_find_resource('jquery.js', cdn='jquery')}}"></script>
+    <script src="{{bootstrap_find_resource('js/bootstrap.js', cdn='bootstrap')}}"></script>
+<script type="text/javascript">
+
+var xmlhttp;
+if (window.XMLHttpRequest)
+  {// code for IE7+, Firefox, Chrome, Opera, Safari
+  xmlhttp=new XMLHttpRequest();
+  }
+else
+  {// code for IE6, IE5
+  xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
+  }
+xmlhttp.onreadystatechange=function()
+  {
+  if (xmlhttp.readyState==4 && xmlhttp.status==200)
+    {
+    url =xmlhttp.responseText;
+    if(url == '408'){
+         window.location.href = '/';
+    }
+    else{
+    window.location.href= "/wechat/"+ url;}
+    }
+  }
+xmlhttp.open("GET","/check-login/{{ uuid }}",true);
+xmlhttp.send();
+
+</script>
+</head>
+<body  background="http://o6gcipdzi.bkt.clouddn.com/bg.jpg" style="background-position: center;background-repeat: no-repeat;background-attachment: fixed;">
+<div class="container">
+   <div class="col-md-4 col-md-offset-4 " style="background-color:white;height:500px;margin-top:80px;">
+        <div class="text-center">
+       <div style="margin-top:30px;">
+        <img src="{{ qr_code_url }}" width="256" height="256" />       </div>
+          <h4 >扫描二维码登录微信</h4>
+
+                            <p class="title">登录手机微信</p>                                        
+                            <p class="glyphicon glyphicon-eye-open">从“发现” </p>
+                            <p ><span class="glyphicon glyphicon-camera">进入“扫一扫”，</span></p>
+                            <p>   扫码登录微信网页版</p>
+
+
+
+</div>
+
+<div id="myDiv"></div>
+<footer class="footer" style="margin-top:40px;">
+        <p class="text-center">Copyright © bigzhao 2016</p>
+
+</footer>
+</body>
+</html>
