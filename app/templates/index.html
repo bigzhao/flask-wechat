@@ -78,10 +78,11 @@
 	<div class="row" style="margin-top:40px;">
 		<div class="col-md-3 col-md-offset-1" style="background-color: #2E3138; height:660px;overflow:auto;box-shadow: inset 1px -1px 1px #444, inset -1px 1px 1px #444;">
 			     <div class="list-group" id="user-list">
-<p>  - </p>
+
                           <p>     
 				
                                <div style="margin-top:20px;margin-bottom:20px;">
+                               <div class="pull-right" ><a href="{{ url_for('logout') }}" ><span class="glyphicon glyphicon-remove-circle">退出</span> </a></div>
 				<h3><img src="{{ url_for('static',filename=user_message['filename']) }}" width="64" height="64"/><font color="white">{{ user_message['NickName']| remove_span }}</font></h3></p>
 				<h5 ><font color="white">个性签名： {{ user_message['Signature'] }}</font></h5></div>
 				<h4 ><font color="white"><span class="glyphicon glyphicon-user">好友列表</span></font></h4>

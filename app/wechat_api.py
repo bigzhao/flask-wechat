@@ -89,6 +89,7 @@ class WebWechatApi():
     heartbeat_thread_handler = None
     sync_listener = []
 #自增变量
+    logout_status = 0
     session = {}
     new_message_members = []    #新消息的成员，存放字典
     username2info = {}     #mapping username 和 friend info
@@ -382,6 +383,9 @@ class WebWechatApi():
 
     def _heartbeat_thread(self):
         while True:
+            if self.logout_status:
+                self.logout_status = 0
+                break
             last_check_time = time.time()
             selector = self._sync_check()
             if selector != '0':
@@ -645,6 +649,8 @@ class WebWechatApi():
 
 
     def logout(self):
+        self.logout_status = 1
+        time.sleep(3)
         url = '%s/webwxlogout?redirect=1&type=0&skey=%s' % (self.base_uri, self._sync_key_str())
         params = {
             'sid': self.base_request['Sid'],

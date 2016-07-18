@@ -1,9 +1,8 @@
 from app import app
-from flask import render_template, request, redirect, session, url_for
+from flask import render_template, request, redirect, session, url_for, flash
 from .wechat_api import WebWechatApi
 import json
 import os
-from . import redis_client
 from .form import sendForm
 import re
 
@@ -22,7 +21,8 @@ SPECIAL_USER = (
 
 @app.route('/')
 def index():
-    global WX 
+    global WX
+    WX = WebWechatApi() 
     qr_code_url = WX.get_qr_image()
     return render_template('qr_scan.html', qr_code_url=qr_code_url, uuid=WX.uuid)
 
@@ -35,6 +35,7 @@ def check_login(uuid):
     while True:
         state_code=WX.wait_for_login()
         if state_code == '200':
+            flash('正在初始化，请稍后')
             break
         elif state_code == '408':  #超时
             print("超时")
@@ -50,13 +51,13 @@ def check_login(uuid):
 
 @app.route('/wechat/<username>')
 def wechat_index(username):
-     global WX
-     WX.webwxgeticon(WX.user_info['UserName'])
+    global WX
+    WX.webwxgeticon(WX.user_info['UserName'])
 #获取头像信息
-     for user in WX.contact_list:
-         WX.webwxgeticon(user['UserName'])
+    for user in WX.contact_list:
+        WX.webwxgeticon(user['UserName'])
 
-     return render_template('index.html',user_message=WX.user_info, data = WX.contact_list)
+    return render_template('index.html',user_message=WX.user_info, data = WX.contact_list)
 
 
 @app.route('/wechat/<username>/<friendname>', methods=['POST', 'GET'])
@@ -69,8 +70,10 @@ def wechat_friend(username, friendname):
         message = form.message.data
         if WX.webwxsendmsg(message, friendname):
             WX.session[friendname].append('send:'+message)
+            flash('[消息发送成功]')
             print('[消息发送成功]')
         else:
+            flash('[消息发送失败]')
             print('[消息发送失败]') 
 
         redirect(url_for('wechat_friend', username=username, friendname=friendname))
@@ -101,7 +104,13 @@ def check():
         return json.dumps(response)
     else:
         return ''
-             
+
+
+@app.route('/wechat/logout') 
+def logout():
+    global WX
+    WX.logout()
+    return redirect(url_for('index'))
 
 @app.errorhandler(404)
 def not_found(e):
