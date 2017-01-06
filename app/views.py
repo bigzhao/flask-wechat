@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 from app import app
 from flask import render_template, request, redirect, session, url_for, flash
 from .wechat_api import WebWechatApi
